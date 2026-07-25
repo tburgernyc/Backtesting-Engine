@@ -15,21 +15,58 @@ invalidation). **Two are close cousins of already-falsified or
 already-drafted families** (Ichimoku TK cross, MTF Compass Pro) and are
 not recommended as standalone registrations — external evidence for plain
 MA/Donchian crossovers is weak, and both overlap mechanically with the
-noise-area baseline / E1 / the E9 draft. MTF Compass's multi-horizon
+noise-area baseline / E1 / the E15 draft. MTF Compass's multi-horizon
 alignment output is still useful, just not as a standalone signal — it's
 a well-built **regime classifier**, and regime-conditioning is exactly
 where a combination across all 4 ideas earns its keep: use it to decide
 *whether* to run the mean-reversion logic or the trend-structure logic,
 rather than running either blindly all the time.
 
-Three drafts follow this doc: **E10** (Capitulation Finder), **E11**
-(Pivot/Livermore structure), and **E12** (the regime-switched
+Three drafts follow this doc: **E16** (Capitulation Finder), **E17**
+(Pivot/Livermore structure), and **E18** (the regime-switched
 combination of the two, gated by a simplified MTF-Compass-style
 classifier). Per `.claude/skills/register-hypothesis`: these are drafts
 for your sign-off, nothing has been run on real data, and per the
-E4→E4-v2 precedent, **E12 should not be evaluated until E10 and E11 have
+E4→E4-v2 precedent, **E18 should not be evaluated until E16 and E17 have
 real standalone numbers** — you can't attribute a combined result to
 either half otherwise.
+
+## Outcome (2026-07-25 update — this section postdates everything below it)
+
+E16 and E17 were subsequently registered in `noisebot`'s `HYPOTHESES.md`
+and evaluated once each, per the plan above. **Both falsified.**
+
+- **E16 (Capitulation Finder): FAIL, 5/6 gates.** n=72 (<100 required),
+  PF=0.662 (<1.3), both sample halves negative, all three plateau cells
+  negative, bootstrap ruin risk 95.8% (vs. <10% required). Only the
+  correlation gate passed — essentially zero correlation with the
+  existing trend sleeves (0.02 vs. E4-v2, 0.07 vs. E6), confirming the
+  mechanism really is distinct, it's just not profitable on this data.
+- **E17 (Livermore pivot-structure): FAIL on kill criterion.** n=47
+  and bootstrap ruin risk 74.1% both failed independently, despite
+  PF=7.6, both halves positive, all plateau cells strongly positive,
+  and Sharpe (1.41) beating buy-hold (0.96) — structurally similar to
+  E4's original story before the E4-v2 vol-targeting fix. Not acted on;
+  a sizing variant would need its own registration, and E17's
+  correlation with E4-v2/E6 (0.72/0.59) suggests it might not add much
+  diversification even if it passed.
+- Before either result was written permanently, an adversarial audit
+  (applying `noisebot`'s own `gate-auditor` persona) independently
+  re-derived every number and caught two real issues, both fixed before
+  finalizing: the correlation gate had no committed/reproducible script
+  (fixed, now lives in `phase2_e16.py`/`phase2_e17.py`), and
+  `e16_capitulation.py`'s `run_backtest()` had a genuine fill-timing bug
+  where exits captured the full close-to-close return instead of
+  stopping at the next bar's open as documented — fixed, verified
+  against the test suite, and confirmed not to change the verdict.
+- **E15** (Alpha-Scope) and **E18** (the regime-switch) remain drafted
+  only, not registered or evaluated, exactly as recommended below.
+
+Full registration entries, verdicts, and "Read" writeups are in
+`noisebot`'s `HYPOTHESES.md` (not this repo — this doc predates and
+doesn't duplicate that record). This update exists so this document
+doesn't read as a live, open recommendation after the question it was
+answering has already been settled.
 
 ---
 
@@ -58,7 +95,7 @@ ETH, matching E6's per-asset-episode convention) rather than a single
 asset over a short window.
 
 **No exit rule is defined in the source** (it's a signal/marker
-indicator, not a full strategy) — E10's draft designs one: exit at
+indicator, not a full strategy) — E16's draft designs one: exit at
 reversion-to-MA (the mechanism's own target), with a time-stop and a
 fixed hard stop as risk controls, since research below flags that
 "oversold" can persist through a real crash.
@@ -84,7 +121,7 @@ states plainly that long-term Ichimoku backtests lagged buy-and-hold and
 that verified track records net of costs are hard to find.
 
 **Recommendation**: not registered standalone. Its economic content is
-already covered by MTF Compass's short-horizon leg in E12's regime
+already covered by MTF Compass's short-horizon leg in E18's regime
 classifier.
 
 ## 3. MTF Compass Pro
@@ -97,28 +134,28 @@ count), and RSI(14) confirmation (≥55 bull / ≤45 bear). Aggregates into
 (`TREND MODE` / `Trend Bias` / `RANGE MODE: Fade Extremes`). Each single-
 horizon bias is a reasonably well-built 3-leg confirmation (level +
 slope-strength + momentum), better built than the raw Ichimoku cross —
-but building E12's simplified version of this surfaced a real bug: the
+but building E18's simplified version of this surfaced a real bug: the
 slope-normalization formula (`normSlope`) divides a raw price difference
 by a percentage NUMBER without converting the numerator to a percentage
 first, so the ratio scales with the absolute price level instead of
 being a clean multiple of ATR%. Confirmed on synthetic data (price ~100):
 the ratio came out in the tens against the default 0.1 threshold, so the
 slope condition was satisfied on 99.6% of bars — the "must be sloping
-meaningfully" filter was close to vacuous as shipped. Fixed in E12's
-regime classifier; see `E12_HYPOTHESIS_DRAFT.md`.
+meaningfully" filter was close to vacuous as shipped. Fixed in E18's
+regime classifier; see `E18_HYPOTHESIS_DRAFT.md`.
 
 **Mechanism family**: also momentum/trend-alignment — same family as
-Ichimoku, the noise-area baseline, E1, and the E9 draft's channel
+Ichimoku, the noise-area baseline, E1, and the E15 draft's channel
 breakout. Not recommended as a standalone directional signal for the same
 reason.
 
 **Where it's actually useful**: not as a signal, but as a **regime
 classifier**. Its 3-way alignment output is a genuinely different *kind*
 of thing than a directional bet — it's exactly the kind of read a
-discretionary trader uses to decide which playbook applies. E12 reuses a
+discretionary trader uses to decide which playbook applies. E18 reuses a
 simplified version of this (alignment count only, dropping the RSI leg to
 avoid re-adding Capitulation Finder's own RSI condition twice into one
-combined system) as the gate between E10 and E11.
+combined system) as the gate between E16 and E17.
 
 ## 4. Pivot Levels & Candle Color ("Livermore structure")
 
@@ -144,7 +181,7 @@ pass at this section undersold one finding and mischaracterized another):
   source stores it at index `i` and its trend-state loop reads it at that
   SAME index `i` — a classic chart-indicator repaint property (fine for
   looking at a historical chart, fatal for a backtest, since it trades on
-  information that wasn't available yet). `e11_pivot_structure.py` fixes
+  information that wasn't available yet). `e17_pivot_structure.py` fixes
   this by shifting pivot availability forward by `right` bars, verified
   by a dedicated test in addition to the standard no-lookahead check.
 - **Not a redundancy after all.** The initial read of this doc called the
@@ -158,7 +195,7 @@ pass at this section undersold one finding and mischaracterized another):
 - One real engineering issue, not a correctness bug: the reaction-low/
   -high tracker is recomputed by rescanning the *entire* leg on every new
   high-water-mark bar — worst-case O(n²) together with the pivot-
-  significance filter's own pairwise comparison. `e11_pivot_structure.py`
+  significance filter's own pairwise comparison. `e17_pivot_structure.py`
   replaces it with an O(1)-amortized accumulator, cross-checked against a
   literal port of the original rescan on synthetic data (0 mismatches
   across 2000 bars) rather than just asserted equivalent.
@@ -171,7 +208,7 @@ got. But the specific combination (confirmed swing pivots + reaction-low
 stop-out + three-part stall detector) is meaningfully more developed than
 either falsified relative, and — per the Swing Failure Pattern research
 below — this exact class of pattern is known to be regime-dependent in a
-way that's directly actionable (see E12).
+way that's directly actionable (see E18).
 
 ---
 
@@ -192,7 +229,7 @@ entries' citations.
   crypto specifically can stay oversold through extended real declines**
   (cites Bitcoin's Nov 2018 crash below $3,200 as a case where RSI stayed
   pinned at extreme-oversold through the entire decline). This is exactly
-  why E10 registers a hard stop, not just an RSI-recovery exit.
+  why E16 registers a hard stop, not just an RSI-recovery exit.
   [Volume exhaustion](https://fastercapital.com/content/Volume-exhaustion--Detecting-Price-Reversals-through-Volume-Analysis.html) ·
   [Reversal Bar Patterns: Buying and Selling Climaxes (IBKR Campus)](https://www.interactivebrokers.com/campus/traders-insight/securities/technical-analysis/reversal-bar-patterns-part-3-buying-and-selling-climaxes/) ·
   [What Is Capitulation in Trading?](https://www.tradingsim.com/blog/capitulate) ·
@@ -203,7 +240,7 @@ entries' citations.
   vs. ~52% in strong trends** for this pattern family — i.e., a real,
   specific claim that this exact mechanism is regime-dependent, which is
   the direct justification for gating trend-structure trades on a regime
-  read in E12.
+  read in E18.
   [Swing Failure Pattern (Morpher)](https://www.morpher.com/blog/swing-failure-pattern) ·
   [Swing Failure Pattern Strategy (QuantVPS)](https://www.quantvps.com/blog/swing-failure-pattern-strategy) ·
   [In-Depth Exploration of the Swing Failure Pattern (LuxAlgo)](https://www.luxalgo.com/blog/in-depth-exploration-of-the-swing-failure-pattern/)
@@ -221,15 +258,20 @@ entries' citations.
 
 ## Recommended sequencing
 
-1. Register and run **E10** and **E11** standalone first (both are
+_(Historical — this was the plan at the time this doc was written. See
+"Outcome" above: step 1 is done, both falsified, which makes step 2 moot
+by an even stronger version of its own stated precondition — you can't
+usefully regime-switch between two falsified strategies.)_
+
+1. Register and run **E16** and **E17** standalone first (both are
    mechanistically fresh enough to deserve their own read, independent of
    each other).
-2. Only after both have real numbers, consider **E12** — and only if
-   E10 and E11's *daily-return correlation with each other* turns out low
+2. Only after both have real numbers, consider **E18** — and only if
+   E16 and E17's *daily-return correlation with each other* turns out low
    (if they're already highly correlated, a regime switch between them
    adds complexity without diversification, and that should surface in
-   E12's own correlation gate before it's worth running).
+   E18's own correlation gate before it's worth running).
 3. Ichimoku TK cross and MTF Compass's directional bias: not recommended
    standalone given the family overlap and weak external evidence: MTF
-   Compass's alignment logic is reused (simplified) as E12's regime gate
+   Compass's alignment logic is reused (simplified) as E18's regime gate
    rather than shelved entirely.
