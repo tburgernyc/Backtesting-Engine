@@ -68,6 +68,43 @@ doesn't duplicate that record). This update exists so this document
 doesn't read as a live, open recommendation after the question it was
 answering has already been settled.
 
+### Update 2 (same day): E17-v2 follow-on, and a separate finding (E19)
+
+After E16/E17 falsified, a fresh read of every hypothesis this repo has
+ever registered (`noisebot`'s `BOTTLENECK_DIAGNOSIS_2026-07-25.md`, not
+part of this document's original scope) found a common bottleneck:
+the bootstrap tail-risk gate, not signal quality, is what kills almost
+everything here — including E17 above, whose raw numbers (PF 7.6, both
+halves positive, all plateau cells positive) were among the strongest
+this repo has ever produced before the ruin gate failed it.
+
+- **E17-v2** (E17's signal, unchanged, re-sized with the same vol-
+  targeting construction that already fixed an identical failure shape
+  for E4 → E4-v2): registered and evaluated once. **Falsified on trade
+  count alone** (n=47 < 100 required — a property of how often a 10-day
+  pivot breakout fires on daily BTC, which resizing exposure cannot
+  change) — but the sizing mechanism itself worked exactly as predicted:
+  bootstrap ruin risk fell from 74.1% to a robust 0.0%, PF held well
+  above the bar, Sharpe improved. Independently audited; no bugs found.
+- **E19**, by contrast, is **not** a descendant of any of the 4
+  indicators this document covers — it's a separate finding from the
+  same bottleneck review: E7 (perp funding-rate carry, registered
+  earlier in `noisebot`'s own history, before this document existed)
+  failed because it was a naked directional bet with no hedge. A
+  genuinely delta-neutral spot+perp construction (short perp, long
+  spot, hedged, collecting only the funding spread) was built from
+  scratch this session and **passed all 7 registered gates** — the
+  first hypothesis in `noisebot`'s history to do so. That said, the
+  audit attached a first-order caveat that has to travel with this
+  result everywhere it's cited: the backtest prices the perp leg off
+  the same spot series as the spot leg (a disclosed simplification), so
+  it is structurally blind to real spot/perp basis risk — this is a
+  validated mechanism/signal-timing pass, not a validated real-world-
+  risk pass. Not otherwise written up here since it falls outside this
+  document's 4-indicator scope; full spec, registration, verdict, and
+  audit findings are in `noisebot`'s `HYPOTHESES.md` and
+  `E19_HYPOTHESIS_DRAFT.md`.
+
 ---
 
 ## 1. Capitulation Finder
