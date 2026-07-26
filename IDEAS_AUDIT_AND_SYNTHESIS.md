@@ -105,6 +105,41 @@ this repo has ever produced before the ruin gate failed it.
   audit findings are in `noisebot`'s `HYPOTHESES.md` and
   `E19_HYPOTHESIS_DRAFT.md`.
 
+### Update 3 (2026-07-26): E19-v2 closes the caveat Update 2 flagged
+
+The caveat above — that E19's backtest priced the perp leg off the same
+spot series as the spot leg, making its hedge-quality gate a tautology
+rather than a measurement — has now been closed properly rather than
+lived with. Real Binance USDⓈ-M perp mark-price history (226 monthly
+archives, coverage identical to the funding data) was sourced, and
+**E19-v2** re-ran the identical mechanism with the perp leg priced off
+real marks. Exactly one input changed; signal logic, sizing, costs, and
+the registered plateau were left untouched.
+
+**E19-v2 passed all 7 gates — this time with an attribution gate that
+could genuinely have failed.** The price leg is now a real −0.0507
+cumulative hedge-slippage cost (7.0% of funding income, against a 20%
+bar fixed before the run), not a structural zero. Tellingly, the
+headline numbers got *worse and more believable*: Sharpe fell from an
+implausible 7.2 to 1.483, max drawdown widened from −2.8% to −6.6% —
+exactly the direction expected when a real risk channel stops being
+assumed away. An independent audit, held to a deliberately higher bar
+on the reasoning that a second consecutive clean sweep warrants more
+scrutiny rather than less, confirmed the result and caught two
+precision errors in the write-up, both recorded in `noisebot`'s
+`HYPOTHESES.md` rather than quietly corrected.
+
+Worth flagging for anyone else reusing Binance archives: their monthly
+kline files before ~2022-02 ship with no header row while later ones
+have one, so naive uniform parsing silently misaligns columns across
+the merged frame. Caught before any number was computed.
+
+This still isn't a live-viability claim — the backtest is daily-close
+granularity and models no intraday liquidation, settlement-timing,
+borrow, or counterparty risk. Paper/shadow exposure is the single
+blocking next step, the same gate E4-v2 passed through before any
+capital discussion.
+
 ---
 
 ## 1. Capitulation Finder
